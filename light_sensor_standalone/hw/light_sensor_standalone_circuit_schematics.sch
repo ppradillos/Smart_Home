@@ -2206,9 +2206,9 @@ Librerías creadas y editadas a conveniencia propia, pero disponible para ustede
 <part name="D2" library="Opto-Electronic" deviceset="LED_RADIAL" device="RED" package3d_urn="urn:adsk.wipprod:fs.file:vf.3Rhx8uyeSFOZa_hTdMDEGg?version=1"/>
 <part name="D3" library="Opto-Electronic" deviceset="LED_RADIAL" device="BLUE" package3d_urn="urn:adsk.wipprod:fs.file:vf.NWVC9CW3TKeu_vSueC357w?version=1"/>
 <part name="C1" library="Capacitor" deviceset="C" device="RADIAL-55.5MM-DIA" package3d_urn="urn:adsk.eagle:package:16290864/2" technology="_" value="100nF"/>
-<part name="R1" library="Resistor" deviceset="R" device="AXIAL-7.2MM-PITCH" package3d_urn="urn:adsk.eagle:package:16378561/2" technology="_" value="RLED"/>
+<part name="RLED" library="Resistor" deviceset="R" device="AXIAL-7.2MM-PITCH" package3d_urn="urn:adsk.eagle:package:16378561/2" technology="_" value="R1"/>
 <part name="RINV" library="Resistor" deviceset="R" device="AXIAL-7.2MM-PITCH" package3d_urn="urn:adsk.eagle:package:16378561/2" technology="_" value="10K"/>
-<part name="R3" library="Resistor" deviceset="R" device="AXIAL-7.2MM-PITCH" package3d_urn="urn:adsk.eagle:package:16378561/2" technology="_" value="RLDR_bias"/>
+<part name="RLDR_BIAS" library="Resistor" deviceset="R" device="AXIAL-7.2MM-PITCH" package3d_urn="urn:adsk.eagle:package:16378561/2" technology="_" value="51k"/>
 <part name="SUPPLY6" library="Power_Symbols" deviceset="AGND" device="" value="AGND"/>
 <part name="SUPPLY7" library="Power_Symbols" deviceset="-V-CIRCLE" device="" value="VEE"/>
 <part name="SUPPLY8" library="Power_Symbols" deviceset="-V-CIRCLE" device="" value="VEE"/>
@@ -2264,7 +2264,7 @@ Librerías creadas y editadas a conveniencia propia, pero disponible para ustede
 <attribute name="NAME" x="10.16" y="-12.7" size="1.778" layer="95" rot="R90"/>
 <attribute name="VALUE" x="12.7" y="-12.7" size="1.778" layer="96" rot="R90"/>
 </instance>
-<instance part="R1" gate="G$1" x="86.36" y="88.9" smashed="yes" rot="R90">
+<instance part="RLED" gate="G$1" x="86.36" y="88.9" smashed="yes" rot="R90">
 <attribute name="NAME" x="83.82" y="88.9" size="1.778" layer="95" rot="R90" align="center"/>
 <attribute name="VALUE" x="88.9" y="88.9" size="1.778" layer="96" rot="R90" align="center"/>
 </instance>
@@ -2272,7 +2272,7 @@ Librerías creadas y editadas a conveniencia propia, pero disponible para ustede
 <attribute name="NAME" x="81.28" y="10.16" size="1.778" layer="95" rot="R90" align="center"/>
 <attribute name="VALUE" x="86.36" y="10.16" size="1.778" layer="96" rot="R90" align="center"/>
 </instance>
-<instance part="R3" gate="G$1" x="-38.1" y="91.44" smashed="yes" rot="R90">
+<instance part="RLDR_BIAS" gate="G$1" x="-38.1" y="91.44" smashed="yes" rot="R90">
 <attribute name="NAME" x="-40.64" y="91.44" size="1.778" layer="95" rot="R90" align="center"/>
 <attribute name="VALUE" x="-35.56" y="91.44" size="1.778" layer="96" rot="R90" align="center"/>
 </instance>
@@ -2369,12 +2369,12 @@ Librerías creadas y editadas a conveniencia propia, pero disponible para ustede
 <pinref part="WEMOS1" gate="D1" pin="3V3"/>
 <wire x1="93.98" y1="96.52" x2="86.36" y2="96.52" width="0.1524" layer="91"/>
 <wire x1="86.36" y1="96.52" x2="86.36" y2="93.98" width="0.1524" layer="91"/>
-<pinref part="R1" gate="G$1" pin="2"/>
+<pinref part="RLED" gate="G$1" pin="2"/>
 </segment>
 </net>
 <net name="N$5" class="0">
 <segment>
-<pinref part="R1" gate="G$1" pin="1"/>
+<pinref part="RLED" gate="G$1" pin="1"/>
 <wire x1="86.36" y1="83.82" x2="86.36" y2="81.28" width="0.1524" layer="91"/>
 <pinref part="D1" gate="G$1" pin="A"/>
 </segment>
@@ -2400,7 +2400,7 @@ Librerías creadas y editadas a conveniencia propia, pero disponible para ustede
 <pinref part="SUPPLY3" gate="G$1" pin="3V3"/>
 <wire x1="-22.86" y1="81.28" x2="-38.1" y2="81.28" width="0.1524" layer="91"/>
 <wire x1="-38.1" y1="81.28" x2="-38.1" y2="86.36" width="0.1524" layer="91"/>
-<pinref part="R3" gate="G$1" pin="1"/>
+<pinref part="RLDR_BIAS" gate="G$1" pin="1"/>
 <junction x="-22.86" y="81.28"/>
 </segment>
 </net>
@@ -2426,7 +2426,7 @@ Librerías creadas y editadas a conveniencia propia, pero disponible para ustede
 <segment>
 <pinref part="U1" gate="A" pin="INA+"/>
 <wire x1="-5.08" y1="104.14" x2="-38.1" y2="104.14" width="0.1524" layer="91"/>
-<pinref part="R3" gate="G$1" pin="2"/>
+<pinref part="RLDR_BIAS" gate="G$1" pin="2"/>
 <wire x1="-38.1" y1="96.52" x2="-38.1" y2="104.14" width="0.1524" layer="91"/>
 <pinref part="LDR1" gate="G$1" pin="1"/>
 <wire x1="-38.1" y1="111.76" x2="-38.1" y2="104.14" width="0.1524" layer="91"/>
