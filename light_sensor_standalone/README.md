@@ -1,5 +1,4 @@
 # Standalone Light Sensor project
------------------------------------------------
 
 This is a submodule of the "Smart Home" project. The goal is to design and implement the hardware and software
 of a basic light sensor, based on a single LDR resistor. The light intensity (illuminance) measured by the 
@@ -10,7 +9,7 @@ analog circuit is converted into a digital signal, and then sent to the Smart Ho
 This system is composed by an analog and a digital circuits:
 
 ### Analog circuit
-- 1x Rail-to-Rail operation amplifier, OP295GPZ
+- 1x Rail-to-Rail operational amplifier (OpAmp), OP295GPZ
 - 1x Voltage switcher, LMC7660
 - 1x LDR photoresistor, GL7516
 - 2x red LEDs to signal a healthy power supply
