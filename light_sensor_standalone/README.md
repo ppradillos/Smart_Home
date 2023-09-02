@@ -20,5 +20,11 @@ This system is composed by an analog and a digital circuits:
 
 The digital part is composed by the Wemos D1 mini board, which is ESP8266 based. I have chosen this one
 because it's WiFi capable and it has a built-in ADC module whilst keeping low power consumption. In addition, 
-it supports: UART, I2C and SPI serial buses which can be very useful if we escalate the circuit with an additional system, e.g.: a temperature sensor. Finally, the board let's me feed the entire system via a 5V USB-based charger, 
-making unnecesary to use batteries.
+it supports: UART, I2C and SPI serial buses which can be very useful if we escalate the circuit with an additional system, e.g.: 
+a temperature sensor. Finally, the board let's me feed the entire system via a 5V USB-based charger, making unnecesary to use batteries.
+
+### Software
+
+As ESP8266 microcontrollers are very well supported by Arduino's development environment, I implement the software
+for the Wemos D1 Mini in such an IDE. Therefore, the source code of this basic module is written within an Arduino's 
+sketch file ('.ino' format), which is basically a '.cpp' file with further processing.
