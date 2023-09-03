@@ -118,7 +118,7 @@ static void print_internal_va(LOG_MSG_CATEGORY category, const char* fmt, va_lis
 // Function definitions
 void print_critical(const char* fmt, ...)
 {
-    if (fmt && LOG_LEVEL > LOG_MSG_NONE)
+    if (fmt && LOG_LEVEL >= LOG_MSG_CRIT)
     {
         va_list args;
         va_start(args, fmt);
@@ -130,7 +130,7 @@ void print_critical(const char* fmt, ...)
 
 void print_error(const char* fmt, ...)
 {
-    if (fmt && LOG_LEVEL > LOG_MSG_NONE)
+    if (fmt && LOG_LEVEL >= LOG_MSG_ERR)
     {
         va_list args;
         va_start(args, fmt);
@@ -142,7 +142,7 @@ void print_error(const char* fmt, ...)
 
 void print_warning(const char* fmt, ...)
 {
-    if (fmt && LOG_LEVEL > LOG_MSG_NONE)
+    if (fmt && LOG_LEVEL >= LOG_MSG_WARN)
     {
         va_list args;
         va_start(args, fmt);
@@ -154,7 +154,7 @@ void print_warning(const char* fmt, ...)
 
 void print_info(const char* fmt, ...)
 {
-    if (fmt && LOG_LEVEL > LOG_MSG_NONE)
+    if (fmt && LOG_LEVEL >= LOG_MSG_INFO)
     {
         va_list args;
         va_start(args, fmt);
@@ -166,7 +166,7 @@ void print_info(const char* fmt, ...)
 
 void print_debug(const char* fmt, ...)
 {
-    if (fmt && LOG_LEVEL > LOG_MSG_NONE)
+    if (fmt && LOG_LEVEL >= LOG_MSG_DBG)
     {
         va_list args;
         va_start(args, fmt);
