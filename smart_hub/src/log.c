@@ -71,93 +71,106 @@ static size_t getLocalDateAndTime(char* time_string)
     return ret;
 }
 
+/**
+ * @brief This is the actual printf wrapper. Depending on LOG_MSG_CATEGORY, it will print
+ *        a different message format (labels, colors...) along with the current date and time.
+ * 
+ * @param category 
+ * @param fmt 
+ * @param args 
+ */
+static void print_internal_va(LOG_MSG_CATEGORY category, const char* fmt, va_list args)
+{
+    char time[80];
+    getLocalDateAndTime(time);
+
+    switch(category)
+    {
+        case LOG_MSG_CRIT:
+            printf("%s[%s] [%s:%d] ", ANSI_COLOR_RED, CRIT_ABBREV, __FILE__, __LINE__);
+        break;
+
+        case LOG_MSG_ERR:
+            printf("%s[%s] [%s:%d] ", ANSI_COLOR_BRIGHT_RED, ERR_ABBREV, __FILE__, __LINE__);
+        break;
+
+        case LOG_MSG_WARN:
+            printf("%s[%s] ", ANSI_COLOR_BRIGHT_YELLOW, WARN_ABBREV);
+        break;
+
+        case LOG_MSG_INFO: 
+            printf("%s[%s] ", ANSI_COLOR_BRIGHT_GREEN, INFO_ABBREV);
+        break;
+
+        case LOG_MSG_DBG:
+        default:
+            printf("%s[%s] [%s:%d] ", ANSI_COLOR_BRIGHT_WHITE, DBG_ABBREV, __FILE__, __LINE__);
+        break;
+    }
+
+    printf("[%s] ", time);
+    vprintf(fmt, args);
+    va_end(args);
+    printf("%s", ANSI_COLOR_RESET);
+}
+
 
 // Function definitions
 void print_critical(const char* fmt, ...)
 {
-    if (fmt)
+    if (fmt && LOG_LEVEL > LOG_MSG_NONE)
     {
         va_list args;
         va_start(args, fmt);
-        char time[80];
-        getLocalDateAndTime(time);
-
-        printf("%s[%s] [%s:%d] ", ANSI_COLOR_RED, CRIT_ABBREV, __FILE__, __LINE__);
-        printf("[%s] ", time);
-        vprintf(fmt, args);
+        print_internal_va(LOG_MSG_CRIT, fmt, args);
         va_end(args);
-        printf("%s", ANSI_COLOR_RESET);
     }
 }
 
 
 void print_error(const char* fmt, ...)
 {
-    if (fmt)
+    if (fmt && LOG_LEVEL > LOG_MSG_NONE)
     {
         va_list args;
         va_start(args, fmt);
-        char time[80];
-        getLocalDateAndTime(time);
-
-        printf("%s[%s] [%s:%d] ", ANSI_COLOR_BRIGHT_RED, ERR_ABBREV, __FILE__, __LINE__);
-        printf("[%s] ", time);
-        vprintf(fmt, args);
+        print_internal_va(LOG_MSG_ERR, fmt, args);
         va_end(args);
-        printf("%s", ANSI_COLOR_RESET);
     }
 }
 
 
 void print_warning(const char* fmt, ...)
 {
-    if (fmt)
+    if (fmt && LOG_LEVEL > LOG_MSG_NONE)
     {
         va_list args;
         va_start(args, fmt);
-        char time[80];
-        getLocalDateAndTime(time);
-
-        printf("%s[%s] ", ANSI_COLOR_BRIGHT_YELLOW, WARN_ABBREV);
-        printf("[%s] ", time);
-        vprintf(fmt, args);
+        print_internal_va(LOG_MSG_WARN, fmt, args);
         va_end(args);
-        printf("%s", ANSI_COLOR_RESET);
     }
 }
 
 
 void print_info(const char* fmt, ...)
 {
-    if (fmt)
+    if (fmt && LOG_LEVEL > LOG_MSG_NONE)
     {
         va_list args;
         va_start(args, fmt);
-        char time[500];
-        getLocalDateAndTime(time);
-
-        printf("%s[%s] ", ANSI_COLOR_BRIGHT_GREEN, INFO_ABBREV);
-        printf("[%s] ", time);
-        vprintf(fmt, args);
+        print_internal_va(LOG_MSG_INFO, fmt, args);
         va_end(args);
-        printf("%s", ANSI_COLOR_RESET);
     }
 }
 
 
 void print_debug(const char* fmt, ...)
 {
-    if (fmt)
+    if (fmt && LOG_LEVEL > LOG_MSG_NONE)
     {
         va_list args;
         va_start(args, fmt);
-        char time[80];
-        getLocalDateAndTime(time);
-
-        printf("%s[%s] [%s:%d] ", ANSI_COLOR_BRIGHT_WHITE, DBG_ABBREV, __FILE__, __LINE__);
-        printf("[%s] ", time);
-        vprintf(fmt, args);
+        print_internal_va(LOG_MSG_DBG, fmt, args);
         va_end(args);
-        printf("%s", ANSI_COLOR_RESET);
     }
 }
