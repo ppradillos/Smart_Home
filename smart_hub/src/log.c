@@ -30,18 +30,18 @@
 #define INFO_ABBREV     "[Info]"
 #define DBG_ABBREV      "[Debug]"
 
-// Define log categories
-typedef enum {
-    LOG_MSG_NONE = 0,
-    LOG_MSG_CRIT,
-    LOG_MSG_ERR,
-    LOG_MSG_WARN,
-    LOG_MSG_INFO,
-    LOG_MSG_DBG
-} LOG_MSG_CATEGORY;
+// Define maximum path size for a log file
+#define MAX_PATH_SIZE   256
 
-// Set log level for the entire program. TODO: set it via config file
-const int LOG_LEVEL = LOG_MSG_DBG;
+// attributes of the log library
+typedef struct {
+    LOG_MSG_CATEGORY log_level;
+    char log_file[MAX_PATH_SIZE];
+    size_t log_file_size;
+} log_attributes_t;
+
+// setup the initial value of log level, LOG_MSG_INFO by default. No log file.
+static log_attributes_t log_atts = {.log_level = LOG_MSG_INFO, .log_file[0] = '\0', .log_file_size = 0};
 
 
 /**
@@ -115,10 +115,33 @@ static void print_internal_va(LOG_MSG_CATEGORY category, const char* fmt, va_lis
 }
 
 
-// Function definitions
+// Functions about library attributes
+void setLogLevel(LOG_MSG_CATEGORY log_level)
+{
+    if (log_level >= LOG_MSG_NONE && log_level <= LOG_MSG_DBG)
+        log_atts.log_level = log_level;
+}
+
+LOG_MSG_CATEGORY getLogLevel()
+{
+    return log_atts.log_level;
+}
+
+void setLogFile(const char* filepath, size_t filepath_size)
+{
+    if (filepath && filepath_size <= MAX_PATH_SIZE)
+    {
+        log_atts.log_file[0] = '\0';
+        snprintf(log_atts.log_file, filepath_size, "%s", filepath);
+        log_atts.log_file_size = filepath_size;
+    }
+}
+
+
+// print function definitions
 void print_critical(const char* fmt, ...)
 {
-    if (fmt && LOG_LEVEL >= LOG_MSG_CRIT)
+    if (fmt && log_atts.log_level >= LOG_MSG_CRIT)
     {
         va_list args;
         va_start(args, fmt);
@@ -130,7 +153,7 @@ void print_critical(const char* fmt, ...)
 
 void print_error(const char* fmt, ...)
 {
-    if (fmt && LOG_LEVEL >= LOG_MSG_ERR)
+    if (fmt && log_atts.log_level >= LOG_MSG_ERR)
     {
         va_list args;
         va_start(args, fmt);
@@ -142,7 +165,7 @@ void print_error(const char* fmt, ...)
 
 void print_warning(const char* fmt, ...)
 {
-    if (fmt && LOG_LEVEL >= LOG_MSG_WARN)
+    if (fmt && log_atts.log_level >= LOG_MSG_WARN)
     {
         va_list args;
         va_start(args, fmt);
@@ -154,7 +177,7 @@ void print_warning(const char* fmt, ...)
 
 void print_info(const char* fmt, ...)
 {
-    if (fmt && LOG_LEVEL >= LOG_MSG_INFO)
+    if (fmt && log_atts.log_level >= LOG_MSG_INFO)
     {
         va_list args;
         va_start(args, fmt);
@@ -166,7 +189,7 @@ void print_info(const char* fmt, ...)
 
 void print_debug(const char* fmt, ...)
 {
-    if (fmt && LOG_LEVEL >= LOG_MSG_DBG)
+    if (fmt && log_atts.log_level >= LOG_MSG_DBG)
     {
         va_list args;
         va_start(args, fmt);

@@ -7,8 +7,11 @@
 #include "log.h"
 
 int main() {
-
     ERROR_CODE ret = OK;
+
+    /* Set log level for this application */
+    setLogLevel(LOG_MSG_DBG);
+
     /* Start up threads and components*/
 
     /* Smart Hub Service */
