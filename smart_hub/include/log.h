@@ -10,11 +10,11 @@
  *                  See LOG_MSG_CATEGORY enum.
  * 
  *              - 5 different print calls, based on how important is to log a specific event in the source code:
- *                  - print_critical
- *                  - print_error
- *                  - print_warning
- *                  - print_info
- *                  - print_debug
+ *                  - log_print_critical
+ *                  - log_print_error
+ *                  - log_print_warning
+ *                  - log_print_info
+ *                  - log_print_debug
  * 
  *              - Log messages have their own format: [label][date] message with arguments, where:
  *                  - label: category of the log message, according to LOG_MSG_CATEGORY.
@@ -59,55 +59,96 @@ typedef enum {
  * 
  * @param log_level 
  */
-void setLogLevel(LOG_MSG_CATEGORY log_level);
+void log_set_level(LOG_MSG_CATEGORY log_level);
 
 /**
  * @brief   Get the current Log Level in use by the library
  * 
  * @return  LOG_MSG_CATEGORY 
  */
-LOG_MSG_CATEGORY getLogLevel();
+LOG_MSG_CATEGORY log_get_level();
 
 /**
  * @brief   Set the log file where logs shall be written. Filepath size must not exceed 256 bytes.
+ *          If the log file does not exist yet, then it will be created.
+ * 
+ *          Please, note that using a log file via this function call DISABLES colors by default.
+ *          Therefore a plain text file shall be generated, suitable for typical text editors.
+ *  
+ *          If a log file with colored text is desirable to check it via command line tools rather than
+ *          text editors, please call 'log_set_file_with_color_text' instead.
  * 
  *          In case no log file specified, stdout shall be assumed as log output.
  * 
  * @param filepath 
+ * @param filepath_size
  */
-void setLogFile(const char* filepath, size_t filepath_size);
+void log_set_file(const char* filepath, size_t filepath_size);
+
+/**
+ * @brief   Set the log file where logs shall be written. Filepath size must not exceed 256 bytes.
+ *          If the log file does not exist yet, then it will be created.
+ * 
+ *          Please, note that using a log file via this function call KEEPS colors by default.
+ *          Therefore some escape sequences shall be generated along with the string messages, 
+ *          make them not suitable for typical text editors.
+ *  
+ *          The purpose of these log files is to be seen from the command line interface, with some tools
+ *          like cat, tail, etc.
+ * 
+ *          In case no log file specified, stdout shall be assumed as log output.
+ * 
+ * @param filepath 
+ * @param filepath_size
+ */
+void log_set_file_with_color_text(const char* filepath, size_t filepath_size);
+
+/**
+ * @brief   Enable colors for the log messages. This is the option by default.
+ * 
+ */
+void log_enable_colors();
+
+/**
+ * @brief   Disable colors for the log messages. This is not the default option.
+ * 
+ *          For the case of log files, please see 'log_set_file' and 'log_set_file_with_color_text'
+ *          to know how colors affects to log files.
+ * 
+ */
+void log_disable_colors();
 
 /**
  * @brief   Print critical messages if selected log level allows it.
  * 
  * @param fmt 
  */
-void print_critical(const char* fmt, ...);
+void log_print_critical(const char* fmt, ...);
 
 /**
  * @brief   Print error messages if selected log level allows it.
  * 
  * @param fmt 
  */
-void print_error(const char* fmt, ...);
+void log_print_error(const char* fmt, ...);
 
 /**
  * @brief   Print warning messages if selected log level allows it.
  * 
  * @param fmt 
  */
-void print_warning(const char* fmt, ...);
+void log_print_warning(const char* fmt, ...);
 
 /**
  * @brief   Print info messages if selected log level allows it.
  * 
  * @param fmt 
  */
-void print_info(const char* fmt, ...);
+void log_print_info(const char* fmt, ...);
 
 /**
  * @brief   Print debug messages if selected log level allows it.
  * 
  * @param fmt 
  */
-void print_debug(const char* fmt, ...);
+void log_print_debug(const char* fmt, ...);

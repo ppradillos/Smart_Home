@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <time.h>
+#include <stdbool.h>
+#include <unistd.h>
 
 #include "log.h"
 
@@ -33,15 +35,22 @@
 // Define maximum path size for a log file
 #define MAX_PATH_SIZE   256
 
+// Define the NULL character
+#define NULL_CHAR  '\0'
+
 // attributes of the log library
 typedef struct {
     LOG_MSG_CATEGORY log_level;
-    char log_file[MAX_PATH_SIZE];
+    char log_file_name[MAX_PATH_SIZE];
     size_t log_file_size;
+    bool log_colors_enabled;
 } log_attributes_t;
 
-// setup the initial value of log level, LOG_MSG_INFO by default. No log file.
-static log_attributes_t log_atts = {.log_level = LOG_MSG_INFO, .log_file[0] = '\0', .log_file_size = 0};
+// setup the initial value of log level, LOG_MSG_INFO by default. No log file, stdout logs, colors enabled.
+static log_attributes_t log_atts = {.log_level = LOG_MSG_INFO, 
+                                    .log_file_name[0] = NULL_CHAR, 
+                                    .log_file_size = 0,
+                                    .log_colors_enabled = true};
 
 
 /**
@@ -50,7 +59,7 @@ static log_attributes_t log_atts = {.log_level = LOG_MSG_INFO, .log_file[0] = '\
  * @param time_string 
  * @return size_t 
  */
-static size_t getLocalDateAndTime(char* time_string)
+static size_t get_local_date_and_time(char* time_string)
 {
     size_t ret = -1;
 
@@ -81,65 +90,162 @@ static size_t getLocalDateAndTime(char* time_string)
  */
 static void print_internal_va(LOG_MSG_CATEGORY category, const char* fmt, va_list args)
 {
-    char time[80];
-    getLocalDateAndTime(time);
+    FILE* log_file;
+    bool log_file_flg = false;
 
+    // Check if logs shall be written into a log file
+    if (log_atts.log_file_name[0] != NULL_CHAR && log_atts.log_file_size > 0)
+    {
+        log_file = fopen(log_atts.log_file_name, "a");
+        if (!log_file)
+        {
+            // error at opening/creating the log file. Log messages will be redirected to stdout
+            log_enable_colors();
+            log_atts.log_file_name[0] = NULL_CHAR;
+            log_atts.log_file_size = 0;
+
+            // get local time and date for this log message
+            char time[80];
+            get_local_date_and_time(time);
+            printf("%s[%s] [%s] Log file cannot be opened. Printing logs to the stdout... %s\n", ANSI_COLOR_BRIGHT_YELLOW, WARN_ABBREV, time, ANSI_COLOR_RESET);
+        }     
+        else
+            log_file_flg = true;
+    }
+
+    // Print the log message either in a log file or in the stdout, depending on log_file_flg. Also check colors enabled or not
     switch(category)
     {
         case LOG_MSG_CRIT:
-            printf("%s[%s] [%s:%d] ", ANSI_COLOR_RED, CRIT_ABBREV, __FILE__, __LINE__);
+            if (log_atts.log_colors_enabled) {
+                log_file_flg ? fprintf(log_file,"%s[%s] [%s:%d] ", ANSI_COLOR_RED, CRIT_ABBREV, __FILE__, __LINE__) : 
+                printf("%s[%s] [%s:%d] ", ANSI_COLOR_RED, CRIT_ABBREV, __FILE__, __LINE__);
+            } else {
+                log_file_flg ? fprintf(log_file,"[%s] [%s:%d] ", CRIT_ABBREV, __FILE__, __LINE__) : 
+                printf("[%s] [%s:%d] ", CRIT_ABBREV, __FILE__, __LINE__);
+            }
         break;
 
         case LOG_MSG_ERR:
-            printf("%s[%s] [%s:%d] ", ANSI_COLOR_BRIGHT_RED, ERR_ABBREV, __FILE__, __LINE__);
+            if (log_atts.log_colors_enabled) {
+                log_file_flg ? fprintf(log_file, "%s[%s] [%s:%d] ", ANSI_COLOR_BRIGHT_RED, ERR_ABBREV, __FILE__, __LINE__) :
+                printf("%s[%s] [%s:%d] ", ANSI_COLOR_BRIGHT_RED, ERR_ABBREV, __FILE__, __LINE__);
+            } else {
+                log_file_flg ? fprintf(log_file, "[%s] [%s:%d] ", ERR_ABBREV, __FILE__, __LINE__) :
+                printf("[%s] [%s:%d] ", ERR_ABBREV, __FILE__, __LINE__);
+            }
         break;
 
         case LOG_MSG_WARN:
-            printf("%s[%s] ", ANSI_COLOR_BRIGHT_YELLOW, WARN_ABBREV);
+            if (log_atts.log_colors_enabled) {
+                log_file_flg ? fprintf(log_file, "%s[%s] ", ANSI_COLOR_BRIGHT_YELLOW, WARN_ABBREV) :
+                printf("%s[%s] ", ANSI_COLOR_BRIGHT_YELLOW, WARN_ABBREV);
+            } else {
+                log_file_flg ? fprintf(log_file, "[%s] ", WARN_ABBREV) :
+                printf("[%s] ", WARN_ABBREV);
+            }
         break;
 
-        case LOG_MSG_INFO: 
-            printf("%s[%s] ", ANSI_COLOR_BRIGHT_GREEN, INFO_ABBREV);
+        case LOG_MSG_INFO:
+            if (log_atts.log_colors_enabled) {
+                log_file_flg ? fprintf(log_file, "%s[%s] ", ANSI_COLOR_BRIGHT_GREEN, INFO_ABBREV) :
+                printf("%s[%s] ", ANSI_COLOR_BRIGHT_GREEN, INFO_ABBREV);
+            } else {
+                log_file_flg ? fprintf(log_file, "[%s] ", INFO_ABBREV) :
+                printf("[%s] ", INFO_ABBREV);
+            }
         break;
 
         case LOG_MSG_DBG:
         default:
-            printf("%s[%s] [%s:%d] ", ANSI_COLOR_BRIGHT_WHITE, DBG_ABBREV, __FILE__, __LINE__);
+            if (log_atts.log_colors_enabled) {
+                log_file_flg ? fprintf(log_file, "%s[%s] [%s:%d] ", ANSI_COLOR_RESET, DBG_ABBREV, __FILE__, __LINE__) :
+                printf("%s[%s] [%s:%d] ", ANSI_COLOR_BRIGHT_WHITE, DBG_ABBREV, __FILE__, __LINE__);
+            } else {
+                log_file_flg ? fprintf(log_file, "[%s] [%s:%d] ", DBG_ABBREV, __FILE__, __LINE__) :
+                printf("[%s] [%s:%d] ", DBG_ABBREV, __FILE__, __LINE__);
+            }
         break;
     }
 
-    printf("[%s] ", time);
-    vprintf(fmt, args);
+    // get local time and date
+    char time[80];
+    get_local_date_and_time(time);
+
+    if (log_file_flg)
+    {
+        fprintf(log_file, "[%s] ", time);
+        vfprintf(log_file, fmt, args); 
+        if (log_atts.log_colors_enabled)
+            fprintf(log_file ,"%s", ANSI_COLOR_RESET);
+        fclose(log_file);
+    }
+    else
+    {
+        printf("[%s] ", time);
+        vprintf(fmt, args);    
+        printf("%s", ANSI_COLOR_RESET);
+    }
+
     va_end(args);
-    printf("%s", ANSI_COLOR_RESET);
+    return;
 }
 
 
 // Functions about library attributes
-void setLogLevel(LOG_MSG_CATEGORY log_level)
+void log_set_level(LOG_MSG_CATEGORY log_level)
 {
     if (log_level >= LOG_MSG_NONE && log_level <= LOG_MSG_DBG)
         log_atts.log_level = log_level;
 }
 
-LOG_MSG_CATEGORY getLogLevel()
+LOG_MSG_CATEGORY log_get_level()
 {
     return log_atts.log_level;
 }
 
-void setLogFile(const char* filepath, size_t filepath_size)
+void log_set_file(const char* filepath, size_t filepath_size)
 {
+    // Checks if the file name is valid and if the file exists in the filesystem
     if (filepath && filepath_size <= MAX_PATH_SIZE)
     {
-        log_atts.log_file[0] = '\0';
-        snprintf(log_atts.log_file, filepath_size, "%s", filepath);
+        log_atts.log_file_name[0] = NULL_CHAR;
+        snprintf(log_atts.log_file_name, filepath_size, "%s", filepath);
         log_atts.log_file_size = filepath_size;
+        log_disable_colors();
+        
     }
+    else
+        log_print_warning("Given log file name is not valid. Logs shall be printed to the stdout.\n");
 }
 
+void log_set_file_with_color_text(const char* filepath, size_t filepath_size)
+{
+    // Checks if the file name is valid and if the file exists in the filesystem
+    if (filepath && filepath_size <= MAX_PATH_SIZE)
+    {
+        log_atts.log_file_name[0] = NULL_CHAR;
+        snprintf(log_atts.log_file_name, filepath_size, "%s", filepath);
+        log_atts.log_file_size = filepath_size;
+        log_enable_colors();
+    }
+    else
+        log_print_warning("Given log file name is not valid. Logs shall be printed to the stdout.\n");
+}
+
+void log_enable_colors()
+{
+    log_atts.log_colors_enabled = true;
+}
+
+void log_disable_colors()
+{
+    log_atts.log_colors_enabled = false;
+    printf("%s", ANSI_COLOR_RESET);
+}
 
 // print function definitions
-void print_critical(const char* fmt, ...)
+void log_print_critical(const char* fmt, ...)
 {
     if (fmt && log_atts.log_level >= LOG_MSG_CRIT)
     {
@@ -151,7 +257,7 @@ void print_critical(const char* fmt, ...)
 }
 
 
-void print_error(const char* fmt, ...)
+void log_print_error(const char* fmt, ...)
 {
     if (fmt && log_atts.log_level >= LOG_MSG_ERR)
     {
@@ -163,7 +269,7 @@ void print_error(const char* fmt, ...)
 }
 
 
-void print_warning(const char* fmt, ...)
+void log_print_warning(const char* fmt, ...)
 {
     if (fmt && log_atts.log_level >= LOG_MSG_WARN)
     {
@@ -175,7 +281,7 @@ void print_warning(const char* fmt, ...)
 }
 
 
-void print_info(const char* fmt, ...)
+void log_print_info(const char* fmt, ...)
 {
     if (fmt && log_atts.log_level >= LOG_MSG_INFO)
     {
@@ -187,7 +293,7 @@ void print_info(const char* fmt, ...)
 }
 
 
-void print_debug(const char* fmt, ...)
+void log_print_debug(const char* fmt, ...)
 {
     if (fmt && log_atts.log_level >= LOG_MSG_DBG)
     {

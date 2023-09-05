@@ -26,11 +26,11 @@ static void *clientHandler(void *arg) {
         memset(buffer, 0, sizeof(buffer));
         ssize_t bytes_received = recv(new_socket, buffer, sizeof(buffer), 0);
         if (bytes_received <= 0) {
-            print_debug("Connection closed by client.\n");
+            log_print_debug("Connection closed by client.\n");
             break;
         }
 
-        print_debug("Received data from client: %s", buffer);
+        log_print_debug("Received data from client: %s", buffer);
 
         // Echo the received data back to the client
         send(new_socket, buffer, strlen(buffer), 0);
@@ -49,7 +49,7 @@ static void *smartHubThread(void *arg)
     pthread_t client_threads[MAX_CLIENTS];
 #endif
     intptr_t server_fd = (intptr_t) arg;
-    print_info("Smart Hub Thread running\n");
+    log_print_info("Smart Hub Thread running\n");
 
     while (1) 
     {
@@ -59,16 +59,16 @@ static void *smartHubThread(void *arg)
 
         // Accept incoming connection
         if ((new_socket = accept(server_fd, (struct sockaddr *)&client_addr, (socklen_t *)&client_addr_len)) < 0) {
-            print_warning("Accept operation failed\n");
+            log_print_warning("Accept operation failed\n");
             continue;
         }
 
-        print_debug("Connection established with client: %s:%d\n", inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port));
+        log_print_debug("Connection established with client: %s:%d\n", inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port));
 
         // Create a new thread for the client
         pthread_t client_thread;
         if (pthread_create(&client_thread, NULL, clientHandler, (void *)&new_socket) != 0) {
-            print_error("Thread creation failed");
+            log_print_error("Thread creation failed");
             continue;
         }
 
@@ -76,7 +76,7 @@ static void *smartHubThread(void *arg)
         pthread_detach(client_thread);
     }
 
-    print_info("Smart Hub Thread Exiting...\n");
+    log_print_info("Smart Hub Thread Exiting...\n");
     return EXIT_SUCCESS;
 }
 
@@ -109,7 +109,7 @@ ERROR_CODE startSmartHubService()
     if (listen(server_fd, MAX_CLIENTS) < 0)
         return ERROR_SOCKET_LISTEN;
 
-    print_info("Server listening on port %d...\n", PORT);
+    log_print_info("Server listening on port %d...\n", PORT);
 
     // Create a dedicated thread for the service
     pthread_t smart_hub_thread;
