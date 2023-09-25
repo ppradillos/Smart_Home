@@ -4,7 +4,7 @@
 #include <pthread.h>
 
 #include "smartHubService.h"
-#include "log.h"
+#include "log4embedded.h"
 
 int main() {
     ERROR_CODE ret = OK;

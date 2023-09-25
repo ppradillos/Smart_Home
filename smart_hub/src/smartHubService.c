@@ -7,7 +7,7 @@
 #include <string.h>
 
 #include "smartHubService.h"
-#include "log.h"
+#include "log4embedded.h"
 
 #define PORT 3001
 #define MAX_CLIENTS 5
